@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивная смета: Видеопроект для ЖК "Просторы Крыма"</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Corporate Calm -->
+    <!-- Application Structure Plan: A single-page dashboard with a sticky top navigation for easy access to key sections: interactive cost estimate, comparable creative scenarios, and terms. The core is an interactive cost breakdown with a donut chart for a quick visual summary and an accordion for detailed exploration. This structure organizes complex information intuitively, allowing the client to grasp the project's scope and creative direction without linear reading. -->
+    <!-- Visualization & Content Choices: 1. Cost Data -> Goal: Inform/Organize -> Viz: Donut Chart + Accordion Table -> Interaction: Hover on chart, Click to expand table rows -> Justification: The chart gives a high-level budget overview, while the accordion provides details on demand, preventing information overload. -> Library: Chart.js for chart, Vanilla JS for accordion. 2. Scenarios -> Goal: Compare -> Viz: Tabbed content panels -> Interaction: Click tabs to switch content -> Justification: Tabs allow for direct, side-by-side comparison of creative options in a compact space. -> Library: Vanilla JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        .tab-button.active {
+            border-color: #3B82F6;
+            color: #3B82F6;
+            background-color: #EFF6FF;
+        }
+        .scenario-card {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .scenario-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-bold text-xl text-gray-700">ЖК "Просторы Крыма"</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#dashboard" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Смета</a>
+                        <a href="#scenarios" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Сценарии</a>
+                        <a href="#terms" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Условия</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+        <section class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 mb-2">Видеопроект для ЖК "Просторы Крыма"</h1>
+            <p class="text-lg text-gray-600">Интерактивная смета и креативные концепции</p>
+        </section>
+
+        <section id="dashboard" class="mb-16 scroll-mt-20">
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+                <h2 class="text-3xl font-bold text-center mb-2">Обзор проекта</h2>
+                 <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">Интерактивный обзор сметы проекта. Визуализация ключевых затрат и детальная разбивка по этапам для полного понимания бюджета.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-10">
+                    <div class="bg-blue-50 p-6 rounded-xl">
+                        <h3 class="text-lg font-semibold text-blue-800">Общая стоимость</h3>
+                        <p class="text-4xl font-bold text-blue-600">308 000 руб.</p>
+                    </div>
+                    <div class="bg-green-50 p-6 rounded-xl">
+                        <h3 class="text-lg font-semibold text-green-800">Общий срок</h3>
+                        <p class="text-4xl font-bold text-green-600">~23 дня</p>
+                    </div>
+                    <div class="bg-purple-50 p-6 rounded-xl">
+                        <h3 class="text-lg font-semibold text-purple-800">Результат</h3>
+                        <p class="text-2xl font-bold text-purple-600 leading-tight">1 ролик (40 мин)<br>1 рилс (60 сек)</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
+                    <div class="lg:col-span-2">
+                        <h3 class="text-2xl font-bold text-center mb-4">Распределение бюджета по этапам</h3>
+                        <div class="chart-container">
+                            <canvas id="costDistributionChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-3">
+                        <h3 class="text-2xl font-bold mb-4">Детальная смета</h3>
+                        <div id="accordion-container" class="space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="scenarios" class="mb-16 scroll-mt-20">
+             <h2 class="text-3xl font-bold text-center mb-2">Креативные сценарии</h2>
+             <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">Выберите идеальную концепцию для вашего видео. Мы подготовили три уникальных сценария для основного ролика и рилса, каждый со своим подходом и стилем.</p>
+            
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+                <h3 class="text-2xl font-bold mb-6 text-center">Варианты для основного ролика (до 40 мин)</h3>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="scenario-card border border-gray-200 rounded-xl p-6 bg-gray-50">
+                        <h4 class="font-bold text-xl mb-3 text-blue-700">"Экскурсия с экспертом"</h4>
+                        <p class="text-sm text-gray-500 mb-2 font-medium">ПРЕМИУМ-ПОДХОД</p>
+                        <p class="text-gray-600 mb-4">Профессиональный риэлтор проводит детальную экскурсию по ЖК, разбирая каждую деталь с точки зрения инвестора и будущего жильца.</p>
+                        <strong class="text-gray-700">Стиль:</strong>
+                        <p class="text-gray-600 text-sm">Профессиональный, но дружелюбный. Плавные движения камеры, панорамные планы, детали в 4K.</p>
+                    </div>
+                    <div class="scenario-card border border-gray-200 rounded-xl p-6 bg-gray-50">
+                        <h4 class="font-bold text-xl mb-3 text-green-700">"История семьи"</h4>
+                         <p class="text-sm text-gray-500 mb-2 font-medium">ЭМОЦИОНАЛЬНЫЙ ПОДХОД</p>
+                        <p class="text-gray-600 mb-4">Следим за путем реальной семьи, которая выбирает квартиру в ЖК, от первого знакомства до принятия решения.</p>
+                        <strong class="text-gray-700">Стиль:</strong>
+                        <p class="text-gray-600 text-sm">Документальный, искренний, с живыми эмоциями. Кинематографичная съемка с акцентом на эмоции.</p>
+                    </div>
+                     <div class="scenario-card border border-gray-200 rounded-xl p-6 bg-gray-50">
+                        <h4 class="font-bold text-xl mb-3 text-purple-700">"Lifestyle & Инвестиции"</h4>
+                         <p class="text-sm text-gray-500 mb-2 font-medium">ПРЕМИУМ-LIFESTYLE</p>
+                        <p class="text-gray-600 mb-4">Показываем не просто недвижимость, а образ жизни в Крыму. Как меняется жизнь после покупки квартиры у моря.</p>
+                        <strong class="text-gray-700">Стиль:</strong>
+                        <p class="text-gray-600 text-sm">Премиум, вдохновляющий. Максимально красивые кадры: golden hour, дрон, slow motion.</p>
+                    </div>
+                </div>
+                
+                <h3 class="text-2xl font-bold mt-12 mb-6 text-center">Идеи для рилса (60 сек)</h3>
+                 <div class="flex justify-center mb-6">
+                    <div id="reels-tabs" class="flex space-x-2 border border-gray-200 rounded-lg p-1 bg-gray-100">
+                        <button class="tab-button active px-4 py-2 text-sm font-medium rounded-md" data-tab="reel-1">Идея #1</button>
+                        <button class="tab-button px-4 py-2 text-sm font-medium rounded-md" data-tab="reel-2">Идея #2</button>
+                        <button class="tab-button px-4 py-2 text-sm font-medium rounded-md" data-tab="reel-3">Идея #3</button>
+                    </div>
+                </div>
+
+                <div id="reels-content" class="max-w-2xl mx-auto">
+                    <div id="reel-1" class="tab-content">
+                        <h4 class="font-bold text-lg mb-2 text-center">"3 причины выбрать эту новостройку в Крыму"</h4>
+                        <ul class="list-disc list-inside text-gray-600 space-y-1">
+                            <li><span class="font-semibold">0-3 сек:</span> Хук "Топ-3 причины купить здесь квартиру".</li>
+                            <li><span class="font-semibold">3-20 сек:</span> Причина 1 - Локация (море, горы, 5 мин до пляжа).</li>
+                            <li><span class="font-semibold">20-40 сек:</span> Причина 2 - Инфраструктура (все включено).</li>
+                            <li><span class="font-semibold">40-55 сек:</span> Причина 3 - Цена (выгодно сейчас).</li>
+                            <li><span class="font-semibold">55-60 сек:</span> CTA "Подробности в шапке профиля".</li>
+                        </ul>
+                    </div>
+                    <div id="reel-2" class="tab-content hidden">
+                        <h4 class="font-bold text-lg mb-2 text-center">"Квартира с видом на море ЗА..."</h4>
+                         <ul class="list-disc list-inside text-gray-600 space-y-1">
+                            <li><span class="font-semibold">0-3 сек:</span> Хук с ценой "от X млн".</li>
+                            <li><span class="font-semibold">3-15 сек:</span> Панорама с балкона.</li>
+                            <li><span class="font-semibold">15-35 сек:</span> Quick tour по квартире.</li>
+                            <li><span class="font-semibold">35-50 сек:</span> Детали: кухня, спальня, санузел.</li>
+                            <li><span class="font-semibold">50-60 сек:</span> Финал с панорамой заката + CTA.</li>
+                        </ul>
+                    </div>
+                    <div id="reel-3" class="tab-content hidden">
+                        <h4 class="font-bold text-lg mb-2 text-center">"До моря 5 минут пешком"</h4>
+                        <ul class="list-disc list-inside text-gray-600 space-y-1">
+                            <li><span class="font-semibold">0-5 сек:</span> Стартуем от входа в ЖК с таймером.</li>
+                            <li><span class="font-semibold">5-45 сек:</span> Идем к морю в ускоренном формате (hyperlapse).</li>
+                            <li><span class="font-semibold">45-55 сек:</span> Приходим на пляж, кадры моря.</li>
+                            <li><span class="font-semibold">55-60 сек:</span> "Вот так просто" + CTA.</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="terms" class="scroll-mt-20">
+             <h2 class="text-3xl font-bold text-center mb-2">Условия и Гарантии</h2>
+             <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">Ключевые условия нашего сотрудничества, обеспечивающие прозрачность и высокое качество финального продукта.</p>
+
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg">Сроки</h4>
+                            <p class="text-gray-600">~23 рабочих дня от подписания договора.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg">Правки</h4>
+                            <p class="text-gray-600">3 раунда правок включены в стоимость.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
+                           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg">Форматы</h4>
+                            <p class="text-gray-600">MP4 (H.264), Full HD версии.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center">
+                           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg">Передача материалов</h4>
+                            <p class="text-gray-600">Облачное хранилище.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center">
+                           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg">Авторские права</h4>
+                            <p class="text-gray-600">Полная передача заказчику.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg">Гарантия</h4>
+                            <p class="text-gray-600">30 дней на исправление технических ошибок.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white mt-12">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
+            <p>&copy; 2025 | Интерактивное предложение для ЖК "Просторы Крыма"</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const budgetData = {
+                labels: ['Препродакшн', 'Продакшн', 'Постпродакшн', 'Продюсирование'],
+                costs: [71000, 127000, 105000, 5000],
+                colors: ['#60A5FA', '#4ADE80', '#A78BFA', '#FBBF24']
+            };
+
+            const ctx = document.getElementById('costDistributionChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: budgetData.labels,
+                    datasets: [{
+                        data: budgetData.costs,
+                        backgroundColor: budgetData.colors,
+                        borderColor: '#F8F9FA',
+                        borderWidth: 4,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 14,
+                                    family: 'Inter, sans-serif'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += new Intl.NumberFormat('ru-RU', {
+                                            style: 'currency',
+                                            currency: 'RUB',
+                                            minimumFractionDigits: 0
+                                        }).format(context.parsed);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const accordionData = [
+                {
+                    title: 'I. Препродакшн',
+                    total: '71 000 руб.',
+                    duration: '10 дней',
+                    items: [
+                        { name: 'Анализ проекта и локации', cost: '8 000' },
+                        { name: 'Разработка концепции', cost: '15 000' },
+                        { name: 'Сценарий основного ролика', cost: '25 000' },
+                        { name: 'Сценарий рилса', cost: '5 000' },
+                        { name: 'Раскадровка', cost: '8 000' },
+                        { name: 'Подбор и кастинг ведущего/актера', cost: '5 000' },
+                        { name: 'Локейшн-скаутинг', cost: '5 000' },
+                    ]
+                },
+                {
+                    title: 'II. Продакшн (Съемка)',
+                    total: '127 000 руб.',
+                    duration: '1 день',
+                    items: [
+                        { name: 'Съемочная группа', cost: '50 000' },
+                        { name: 'Аренда камер', cost: '15 000' },
+                        { name: 'Осветительное оборудование', cost: '5 000' },
+                        { name: 'Звуковое оборудование', cost: '5 000' },
+                        { name: 'Аэросъемка (дрон)', cost: '10 000' },
+                        { name: 'Стабилизаторы и аксессуары', cost: '5 000' },
+                        { name: 'Ведущий/Эксперт', cost: '20 000' },
+                        { name: 'Транспорт и логистика', cost: '7 000' },
+                        { name: 'Питание команды', cost: '3 000' },
+                        { name: 'Проживание команды', cost: '7 000' },
+                    ]
+                },
+                {
+                    title: 'III. Постпродакшн',
+                    total: '105 000 руб.',
+                    duration: '12 дней',
+                    items: [
+                        { name: 'Монтаж основного ролика', cost: '50 000' },
+                        { name: 'Монтаж 1 рилса', cost: '12 000' },
+                        { name: 'Цветокоррекция', cost: '10 000' },
+                        { name: 'Графика и анимация', cost: '15 000' },
+                        { name: 'Саунд-дизайн', cost: '10 000' },
+                        { name: 'Озвучка (если требуется)', cost: '5 000' },
+                        { name: 'Субтитры', cost: '3 000' },
+                    ]
+                },
+                {
+                    title: 'IV. Продюсирование и управление',
+                    total: '5 000 руб.',
+                    duration: 'Весь период',
+                    items: [
+                        { name: 'Управление проектом', cost: '5 000' },
+                        { name: 'Правки и корректировки', cost: 'включено' },
+                    ]
+                },
+            ];
+
+            const accordionContainer = document.getElementById('accordion-container');
+            accordionData.forEach((section, index) => {
+                const sectionEl = document.createElement('div');
+                sectionEl.className = 'border border-gray-200 rounded-lg overflow-hidden';
+                sectionEl.innerHTML = `
+                    <button class="accordion-header w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 focus:outline-none">
+                        <span class="font-semibold text-lg text-left">${section.title}</span>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm font-medium text-gray-500">${section.duration}</span>
+                            <span class="font-bold text-gray-700">${section.total}</span>
+                            <svg class="w-5 h-5 transition-transform transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </button>
+                    <div class="accordion-content hidden p-4 bg-white">
+                        <ul class="space-y-2">
+                            ${section.items.map(item => `
+                                <li class="flex justify-between items-center text-gray-600">
+                                    <span>${item.name}</span>
+                                    <span class="font-medium text-gray-800">${typeof item.cost === 'string' && isNaN(item.cost) ? item.cost : new Intl.NumberFormat('ru-RU').format(item.cost) + ' руб.'}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+                accordionContainer.appendChild(sectionEl);
+            });
+
+            document.querySelectorAll('.accordion-header').forEach(button => {
+                button.addEventListener('click', () => {
+                    const content = button.nextElementSibling;
+                    const icon = button.querySelector('svg');
+                    content.classList.toggle('hidden');
+                    icon.classList.toggle('rotate-180');
+                });
+            });
+
+            const reelsTabs = document.getElementById('reels-tabs');
+            const reelsContent = document.getElementById('reels-content');
+
+            reelsTabs.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    const tabId = e.target.dataset.tab;
+                    
+                    reelsTabs.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+
+                    reelsContent.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+                    document.getElementById(tabId).classList.remove('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

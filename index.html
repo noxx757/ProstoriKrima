@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Corporate Calm -->
     <!-- Application Structure Plan: A single-page dashboard with a sticky top navigation for easy access to key sections: interactive cost estimate, comparable creative scenarios, and terms. The core is an interactive cost breakdown with a donut chart for a quick visual summary and an accordion for detailed exploration. This structure organizes complex information intuitively, allowing the client to grasp the project's scope and creative direction without linear reading. -->
-    <!-- Visualization & Content Choices: 1. Cost Data -> Goal: Inform/Organize -> Viz: Donut Chart + Accordion Table -> Interaction: Hover on chart, Click to expand table rows -> Justification: The chart gives a high-level budget overview, while the accordion provides details on demand, preventing information overload. -> Library: Chart.js for chart, Vanilla JS for accordion. 2. Scenarios -> Goal: Compare -> Viz: Tabbed content panels -> Interaction: Click tabs to switch content -> Justification: Tabs allow for direct, side-by-side comparison of creative options in a compact space. -> Library: Vanilla JS. -->
+    <!-- Visualization & Content Choices: 1. Cost Data -> Goal: Inform/Organize -> Viz: Donut Chart + Accordion Table -> Interaction: Hover on chart, Click to expand table rows -> Justification: The chart gives a high-level budget overview, while the accordion provides details on demand, preventing information overload. -> Library: Chart.js for chart, Vanilla JS for accordion. 2. Scenarios -> Goal: Compare -> Viz: Card layout and simple blocks -> Interaction: None -> Justification: Simple, clear presentation for easy reading and comparison. -> Library: None. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
@@ -27,17 +27,15 @@
             height: 350px;
             max-height: 400px;
         }
-        .tab-button.active {
-            border-color: #3B82F6;
-            color: #3B82F6;
-            background-color: #EFF6FF;
-        }
         .scenario-card {
             transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
         }
         .scenario-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .accordion-content ul {
+            border-left: 2px solid #e5e7eb;
         }
     </style>
 </head>
@@ -64,32 +62,32 @@
 
         <section class="text-center mb-12">
             <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 mb-2">Видеопроект для ЖК "Просторы Крыма"</h1>
-            <p class="text-lg text-gray-600">Интерактивная смета и креативные концепции</p>
+            <p class="text-lg text-gray-600">Интерактивная смета и креативные концепции для двух имиджевых роликов.</p>
         </section>
 
         <section id="dashboard" class="mb-16 scroll-mt-20">
             <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
                 <h2 class="text-3xl font-bold text-center mb-2">Обзор проекта</h2>
-                 <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">Интерактивный обзор сметы проекта. Визуализация ключевых затрат и детальная разбивка по этапам для полного понимания бюджета.</p>
+                 <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">Эта смета составлена под бюджет 276 100 руб. для создания двух имиджевых роликов длительностью до 1 минуты и до 40 минут.</p>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-10">
                     <div class="bg-blue-50 p-6 rounded-xl">
-                        <h3 class="text-lg font-semibold text-blue-800">Общая стоимость</h3>
-                        <p class="text-4xl font-bold text-blue-600">308 000 руб.</p>
+                        <h3 class="text-lg font-semibold text-blue-800">Итого за проект</h3>
+                        <p class="text-4xl font-bold text-blue-600">276 100 руб.</p>
                     </div>
                     <div class="bg-green-50 p-6 rounded-xl">
                         <h3 class="text-lg font-semibold text-green-800">Общий срок</h3>
-                        <p class="text-4xl font-bold text-green-600">~23 дня</p>
+                        <p class="text-4xl font-bold text-green-600">~14 дней</p>
                     </div>
                     <div class="bg-purple-50 p-6 rounded-xl">
                         <h3 class="text-lg font-semibold text-purple-800">Результат</h3>
-                        <p class="text-2xl font-bold text-purple-600 leading-tight">1 ролик (40 мин)<br>1 рилс (60 сек)</p>
+                        <p class="text-2xl font-bold text-purple-600 leading-tight">1 ролик (до 40 мин)<br>1 ролик (до 1 мин)</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
                     <div class="lg:col-span-2">
-                        <h3 class="text-2xl font-bold text-center mb-4">Распределение бюджета по этапам</h3>
+                        <h3 class="text-2xl font-bold text-center mb-4">Распределение бюджета</h3>
                         <div class="chart-container">
                             <canvas id="costDistributionChart"></canvas>
                         </div>
@@ -97,6 +95,20 @@
                     <div class="lg:col-span-3">
                         <h3 class="text-2xl font-bold mb-4">Детальная смета</h3>
                         <div id="accordion-container" class="space-y-2"></div>
+                         <div class="mt-4 border-t-2 pt-4 space-y-2">
+                            <div class="flex justify-between items-center text-gray-700">
+                                <span class="font-semibold">ОБЩАЯ СМЕТА</span>
+                                <span class="font-bold">251 000 руб.</span>
+                            </div>
+                            <div class="flex justify-between items-center text-gray-700">
+                                <span class="font-semibold">Налоги, комиссия банка и бухгалтерия</span>
+                                <span class="font-bold">10%</span>
+                            </div>
+                             <div class="flex justify-between items-center text-blue-700 text-xl">
+                                <span class="font-extrabold">ИТОГО ЗА ПРОЕКТ</span>
+                                <span class="font-extrabold">276 100 руб.</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -104,72 +116,47 @@
 
         <section id="scenarios" class="mb-16 scroll-mt-20">
              <h2 class="text-3xl font-bold text-center mb-2">Креативные сценарии</h2>
-             <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">Выберите идеальную концепцию для вашего видео. Мы подготовили три уникальных сценария для основного ролика и рилса, каждый со своим подходом и стилем.</p>
+             <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">Выберите идеальную концепцию для вашего видео. Мы подготовили три уникальных сценария для основного ролика и множество идей для короткого видео.</p>
             
             <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
-                <h3 class="text-2xl font-bold mb-6 text-center">Варианты для основного ролика (до 40 мин)</h3>
+                <h3 class="text-2xl font-bold mb-6 text-center">Варианты для большого ролика</h3>
                 <div class="grid md:grid-cols-3 gap-8">
                     <div class="scenario-card border border-gray-200 rounded-xl p-6 bg-gray-50">
                         <h4 class="font-bold text-xl mb-3 text-blue-700">"Экскурсия с экспертом"</h4>
                         <p class="text-sm text-gray-500 mb-2 font-medium">ПРЕМИУМ-ПОДХОД</p>
-                        <p class="text-gray-600 mb-4">Профессиональный риэлтор проводит детальную экскурсию по ЖК, разбирая каждую деталь с точки зрения инвестора и будущего жильца.</p>
+                        <p class="text-gray-600 mb-4">Профессиональный риэлтор проводит детальную экскурсию по ЖК.</p>
                         <strong class="text-gray-700">Стиль:</strong>
-                        <p class="text-gray-600 text-sm">Профессиональный, но дружелюбный. Плавные движения камеры, панорамные планы, детали в 4K.</p>
+                        <p class="text-gray-600 text-sm">Экспертный, но доступный для широкой аудитории.</p>
                     </div>
                     <div class="scenario-card border border-gray-200 rounded-xl p-6 bg-gray-50">
                         <h4 class="font-bold text-xl mb-3 text-green-700">"История семьи"</h4>
                          <p class="text-sm text-gray-500 mb-2 font-medium">ЭМОЦИОНАЛЬНЫЙ ПОДХОД</p>
-                        <p class="text-gray-600 mb-4">Следим за путем реальной семьи, которая выбирает квартиру в ЖК, от первого знакомства до принятия решения.</p>
+                        <p class="text-gray-600 mb-4">Наблюдаем за реальной семьей, которая выбирает квартиру в ЖК.</p>
                         <strong class="text-gray-700">Стиль:</strong>
-                        <p class="text-gray-600 text-sm">Документальный, искренний, с живыми эмоциями. Кинематографичная съемка с акцентом на эмоции.</p>
+                        <p class="text-gray-600 text-sm">Документальный, искренний, с живыми эмоциями.</p>
                     </div>
                      <div class="scenario-card border border-gray-200 rounded-xl p-6 bg-gray-50">
                         <h4 class="font-bold text-xl mb-3 text-purple-700">"Lifestyle & Инвестиции"</h4>
                          <p class="text-sm text-gray-500 mb-2 font-medium">ПРЕМИУМ-LIFESTYLE</p>
-                        <p class="text-gray-600 mb-4">Показываем не просто недвижимость, а образ жизни в Крыму. Как меняется жизнь после покупки квартиры у моря.</p>
+                        <p class="text-gray-600 mb-4">Показываем не просто недвижимость, а красивый образ жизни в Крыму.</p>
                         <strong class="text-gray-700">Стиль:</strong>
-                        <p class="text-gray-600 text-sm">Премиум, вдохновляющий. Максимально красивые кадры: golden hour, дрон, slow motion.</p>
+                        <p class="text-gray-600 text-sm">Кинематографичный, вдохновляющий.</p>
                     </div>
                 </div>
                 
-                <h3 class="text-2xl font-bold mt-12 mb-6 text-center">Идеи для рилса (60 сек)</h3>
-                 <div class="flex justify-center mb-6">
-                    <div id="reels-tabs" class="flex space-x-2 border border-gray-200 rounded-lg p-1 bg-gray-100">
-                        <button class="tab-button active px-4 py-2 text-sm font-medium rounded-md" data-tab="reel-1">Идея #1</button>
-                        <button class="tab-button px-4 py-2 text-sm font-medium rounded-md" data-tab="reel-2">Идея #2</button>
-                        <button class="tab-button px-4 py-2 text-sm font-medium rounded-md" data-tab="reel-3">Идея #3</button>
+                <h3 class="text-2xl font-bold mt-12 mb-6 text-center">15 идей для рилсов (60 сек)</h3>
+                 <div class="grid md:grid-cols-3 gap-8 text-center">
+                    <div>
+                        <h4 class="font-bold text-lg mb-2">Блок 1: Обзорные</h4>
+                        <p class="text-gray-600 text-sm">"3 причины выбрать эту новостройку", "Квартира с видом на море ЗА...", "До моря 5 минут пешком", "Sunrise/Sunset с балкона", "Тур по территории за минуту".</p>
                     </div>
-                </div>
-
-                <div id="reels-content" class="max-w-2xl mx-auto">
-                    <div id="reel-1" class="tab-content">
-                        <h4 class="font-bold text-lg mb-2 text-center">"3 причины выбрать эту новостройку в Крыму"</h4>
-                        <ul class="list-disc list-inside text-gray-600 space-y-1">
-                            <li><span class="font-semibold">0-3 сек:</span> Хук "Топ-3 причины купить здесь квартиру".</li>
-                            <li><span class="font-semibold">3-20 сек:</span> Причина 1 - Локация (море, горы, 5 мин до пляжа).</li>
-                            <li><span class="font-semibold">20-40 сек:</span> Причина 2 - Инфраструктура (все включено).</li>
-                            <li><span class="font-semibold">40-55 сек:</span> Причина 3 - Цена (выгодно сейчас).</li>
-                            <li><span class="font-semibold">55-60 сек:</span> CTA "Подробности в шапке профиля".</li>
-                        </ul>
+                    <div>
+                        <h4 class="font-bold text-lg mb-2">Блок 2: Факты и сравнения</h4>
+                        <p class="text-gray-600 text-sm">"Квартира в Крыму VS Москва", "5 фактов о ЖК", "Что входит в инфраструктуру?", "Рассрочка 0%", "Инвестиция или место жизни?".</p>
                     </div>
-                    <div id="reel-2" class="tab-content hidden">
-                        <h4 class="font-bold text-lg mb-2 text-center">"Квартира с видом на море ЗА..."</h4>
-                         <ul class="list-disc list-inside text-gray-600 space-y-1">
-                            <li><span class="font-semibold">0-3 сек:</span> Хук с ценой "от X млн".</li>
-                            <li><span class="font-semibold">3-15 сек:</span> Панорама с балкона.</li>
-                            <li><span class="font-semibold">15-35 сек:</span> Quick tour по квартире.</li>
-                            <li><span class="font-semibold">35-50 сек:</span> Детали: кухня, спальня, санузел.</li>
-                            <li><span class="font-semibold">50-60 сек:</span> Финал с панорамой заката + CTA.</li>
-                        </ul>
-                    </div>
-                    <div id="reel-3" class="tab-content hidden">
-                        <h4 class="font-bold text-lg mb-2 text-center">"До моря 5 минут пешком"</h4>
-                        <ul class="list-disc list-inside text-gray-600 space-y-1">
-                            <li><span class="font-semibold">0-5 сек:</span> Стартуем от входа в ЖК с таймером.</li>
-                            <li><span class="font-semibold">5-45 сек:</span> Идем к морю в ускоренном формате (hyperlapse).</li>
-                            <li><span class="font-semibold">45-55 сек:</span> Приходим на пляж, кадры моря.</li>
-                            <li><span class="font-semibold">55-60 сек:</span> "Вот так просто" + CTA.</li>
-                        </ul>
+                    <div>
+                        <h4 class="font-bold text-lg mb-2">Блок 3: Эмоциональные и Viral</h4>
+                        <p class="text-gray-600 text-sm">"Reaction на виды с балкона", "День из жизни владельца", "До/После переезда в Крым", "Guess the price", "Звуки моря из твоей квартиры".</p>
                     </div>
                 </div>
 
@@ -188,7 +175,7 @@
                         </div>
                         <div>
                             <h4 class="font-semibold text-lg">Сроки</h4>
-                            <p class="text-gray-600">~23 рабочих дня от подписания договора.</p>
+                            <p class="text-gray-600">12 рабочих дней от момента проведения съёмки.</p>
                         </div>
                     </div>
                     <div class="flex items-start space-x-4">
@@ -206,7 +193,7 @@
                         </div>
                         <div>
                             <h4 class="font-semibold text-lg">Форматы</h4>
-                            <p class="text-gray-600">MP4 (H.264), Full HD версии.</p>
+                            <p class="text-gray-600">MP4 (H.264), 4K и Full HD версии.</p>
                         </div>
                     </div>
                     <div class="flex items-start space-x-4">
@@ -251,8 +238,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const budgetData = {
-                labels: ['Препродакшн', 'Продакшн', 'Постпродакшн', 'Продюсирование'],
-                costs: [71000, 127000, 105000, 5000],
+                labels: ['Препродакшн', 'Продакшн', 'Постпродакшн', 'Орг. расходы'],
+                costs: [24000, 120000, 95000, 12000],
                 colors: ['#60A5FA', '#4ADE80', '#A78BFA', '#FBBF24']
             };
 
@@ -309,56 +296,40 @@
             const accordionData = [
                 {
                     title: 'I. Препродакшн',
-                    total: '71 000 руб.',
-                    duration: '10 дней',
+                    total: '24 000 руб.',
+                    duration: '3 дня',
                     items: [
-                        { name: 'Анализ проекта и локации', cost: '8 000' },
-                        { name: 'Разработка концепции', cost: '15 000' },
-                        { name: 'Сценарий основного ролика', cost: '25 000' },
-                        { name: 'Сценарий рилса', cost: '5 000' },
-                        { name: 'Раскадровка', cost: '8 000' },
-                        { name: 'Подбор и кастинг ведущего/актера', cost: '5 000' },
-                        { name: 'Локейшн-скаутинг', cost: '5 000' },
+                        { name: 'Анализ и концепция', cost: '8 000', details: ['Изучение объекта, разработка идеи', 'Планирование графика и тайминга съёмки'] },
+                        { name: 'Сценарий', cost: '8 000', details: ['Написание сценария для имиджевого ролика'] },
+                        { name: 'Раскадровка', cost: '8 000', details: ['Визуализация ключевых сцен'] },
                     ]
                 },
                 {
                     title: 'II. Продакшн (Съемка)',
-                    total: '127 000 руб.',
+                    total: '120 000 руб.',
                     duration: '1 день',
                     items: [
-                        { name: 'Съемочная группа', cost: '50 000' },
-                        { name: 'Аренда камер', cost: '15 000' },
-                        { name: 'Осветительное оборудование', cost: '5 000' },
-                        { name: 'Звуковое оборудование', cost: '5 000' },
-                        { name: 'Аэросъемка (дрон)', cost: '10 000' },
-                        { name: 'Стабилизаторы и аксессуары', cost: '5 000' },
-                        { name: 'Ведущий/Эксперт', cost: '20 000' },
-                        { name: 'Транспорт и логистика', cost: '7 000' },
-                        { name: 'Питание команды', cost: '3 000' },
-                        { name: 'Проживание команды', cost: '7 000' },
+                        { name: 'Оператор-постановщик (6 часов)', cost: '50 000', details: ['Камеры: Sony A7S III', 'Объективы: Tamron 28-75mm f2.8 | Tamron 17-28mm f2.8 | Sony 70-200mm F4 Macro G OSS II', 'Светофильтры: Freewell Versatile', 'Штатив: Sirui SH25 с видеоголовой', 'Микрофоны: DJI Mic 2', 'Мониторинг: Накамерный монитор PortKeys LHP5 II', 'Стабилизатор: DJI Ronin RS4 Pro'] },
+                        { name: 'Оператор 2 (6 часов)', cost: '35 000', details: ['Камеры: Sony FX3', 'Объективы: Tamron 28-75mm f2.8 | Tamron 17-28mm f2.8', 'Светофильтры: Freewell Versatile', 'Штатив: Sirui SH25 с видеоголовой', 'Мониторинг: Накамерный монитор PortKeys LHP5 II', 'Стабилизатор: DJI Ronin RS2'] },
+                        { name: 'Оператор 3 (6 часов)', cost: '35 000', details: ['Камеры: Sony FX3', 'Объективы: Tamron 28-75mm f2.8 | Tamron 17-28mm f2.8', 'Светофильтры: Freewell Versatile', 'Штатив: Sirui SH25 с видеоголовой', 'Мониторинг: Накамерный монитор PortKeys LHP5 II', 'Стабилизатор: DJI Ronin RS2'] },
                     ]
                 },
                 {
                     title: 'III. Постпродакшн',
-                    total: '105 000 руб.',
+                    total: '95 000 руб.',
                     duration: '12 дней',
                     items: [
-                        { name: 'Монтаж основного ролика', cost: '50 000' },
-                        { name: 'Монтаж 1 рилса', cost: '12 000' },
-                        { name: 'Цветокоррекция', cost: '10 000' },
-                        { name: 'Графика и анимация', cost: '15 000' },
-                        { name: 'Саунд-дизайн', cost: '10 000' },
-                        { name: 'Озвучка (если требуется)', cost: '5 000' },
-                        { name: 'Субтитры', cost: '3 000' },
+                        { name: 'Видеомонтаж (горизонтальный)', cost: '75 000', details: ['Хронометраж: до 40 минут', 'Формат: 16:9', 'Сроки: до 12 календарных дней', 'Работы: черновой монтаж, музыкальное сопровождение, согласование, финальная сборка, цветокоррекция, инфографика, текстографика'] },
+                        { name: 'Видеомонтаж (вертикальный)', cost: '20 000', details: ['Хронометраж: до 1 минуты', 'Формат: 9:16', 'Сроки: до 12 календарных дней', 'Работы: черновой монтаж, музыкальное сопровождение, согласование, финальная сборка, цветокоррекция, текстографика'] },
                     ]
                 },
                 {
-                    title: 'IV. Продюсирование и управление',
-                    total: '5 000 руб.',
+                    title: 'IV. Организационные расходы',
+                    total: '12 000 руб.',
                     duration: 'Весь период',
                     items: [
-                        { name: 'Управление проектом', cost: '5 000' },
-                        { name: 'Правки и корректировки', cost: 'включено' },
+                        { name: 'Аренда светового оборудования', cost: '12000' },
+                        { name: 'Транспортные расходы', cost: 'включено', details: ['Расходы на топливо и амортизацию до съемочной площадки и обратно.', 'Автомобиль: KIA RIO'] },
                     ]
                 },
             ];
@@ -379,9 +350,16 @@
                     <div class="accordion-content hidden p-4 bg-white">
                         <ul class="space-y-2">
                             ${section.items.map(item => `
-                                <li class="flex justify-between items-center text-gray-600">
-                                    <span>${item.name}</span>
-                                    <span class="font-medium text-gray-800">${typeof item.cost === 'string' && isNaN(item.cost) ? item.cost : new Intl.NumberFormat('ru-RU').format(item.cost) + ' руб.'}</span>
+                                <li class="py-2 border-b border-gray-100 last:border-b-0">
+                                    <div class="flex justify-between items-center text-gray-700">
+                                        <span>${item.name}</span>
+                                        <span class="font-medium text-gray-900">${typeof item.cost === 'string' && isNaN(item.cost) ? item.cost : new Intl.NumberFormat('ru-RU').format(item.cost) + ' руб.'}</span>
+                                    </div>
+                                    ${item.details ? `
+                                        <ul class="list-disc list-inside text-sm text-gray-500 mt-2 ml-4 pl-4 space-y-1">
+                                            ${item.details.map(detail => `<li>${detail}</li>`).join('')}
+                                        </ul>
+                                    ` : ''}
                                 </li>
                             `).join('')}
                         </ul>
@@ -417,3 +395,4 @@
     </script>
 </body>
 </html>
+

@@ -37,6 +37,24 @@
         .accordion-content ul {
             border-left: 2px solid #e5e7eb;
         }
+        .tab-button.active {
+            border-color: #3B82F6;
+            color: #3B82F6;
+            background-color: #EFF6FF;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
     </style>
 </head>
 <body class="text-gray-800">
@@ -52,6 +70,7 @@
                         <a href="#dashboard" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Смета</a>
                         <a href="#scenarios" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Сценарии</a>
                         <a href="#terms" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Условия</a>
+                        <a href="#contact" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Контакты</a>
                     </div>
                 </div>
             </div>
@@ -144,19 +163,44 @@
                     </div>
                 </div>
                 
-                <h3 class="text-2xl font-bold mt-12 mb-6 text-center">15 идей для рилсов (60 сек)</h3>
-                 <div class="grid md:grid-cols-3 gap-8 text-center">
-                    <div>
-                        <h4 class="font-bold text-lg mb-2">Блок 1: Обзорные</h4>
-                        <p class="text-gray-600 text-sm">"3 причины выбрать эту новостройку", "Квартира с видом на море ЗА...", "До моря 5 минут пешком", "Sunrise/Sunset с балкона", "Тур по территории за минуту".</p>
+                <h3 class="text-2xl font-bold mt-12 mb-6 text-center">3 идеи для рилса (60 сек)</h3>
+                 <div class="flex justify-center mb-6">
+                    <div id="reels-tabs" class="flex space-x-2 border border-gray-200 rounded-lg p-1 bg-gray-100">
+                        <button class="tab-button active px-4 py-2 text-sm font-medium rounded-md" data-tab="reel-1">Идея #1</button>
+                        <button class="tab-button px-4 py-2 text-sm font-medium rounded-md" data-tab="reel-2">Идея #2</button>
+                        <button class="tab-button px-4 py-2 text-sm font-medium rounded-md" data-tab="reel-3">Идея #3</button>
                     </div>
-                    <div>
-                        <h4 class="font-bold text-lg mb-2">Блок 2: Факты и сравнения</h4>
-                        <p class="text-gray-600 text-sm">"Квартира в Крыму VS Москва", "5 фактов о ЖК", "Что входит в инфраструктуру?", "Рассрочка 0%", "Инвестиция или место жизни?".</p>
+                </div>
+
+                <div id="reels-content" class="max-w-2xl mx-auto">
+                    <div id="reel-1" class="tab-content">
+                        <h4 class="font-bold text-lg mb-2 text-center">"3 причины выбрать эту новостройку в Крыму"</h4>
+                        <ul class="list-disc list-inside text-gray-600 space-y-1">
+                            <li><span class="font-semibold">0-3 сек:</span> Хук "Топ-3 причины купить здесь квартиру".</li>
+                            <li><span class="font-semibold">3-20 сек:</span> Причина 1 - Локация (море, горы, 5 мин до пляжа).</li>
+                            <li><span class="font-semibold">20-40 сек:</span> Причина 2 - Инфраструктура (все включено).</li>
+                            <li><span class="font-semibold">40-55 сек:</span> Причина 3 - Цена (выгодно сейчас).</li>
+                            <li><span class="font-semibold">55-60 сек:</span> CTA "Подробности в шапке профиля".</li>
+                        </ul>
                     </div>
-                    <div>
-                        <h4 class="font-bold text-lg mb-2">Блок 3: Эмоциональные и Viral</h4>
-                        <p class="text-gray-600 text-sm">"Reaction на виды с балкона", "День из жизни владельца", "До/После переезда в Крым", "Guess the price", "Звуки моря из твоей квартиры".</p>
+                    <div id="reel-2" class="tab-content hidden">
+                        <h4 class="font-bold text-lg mb-2 text-center">"Квартира с видом на море ЗА..."</h4>
+                        <ul class="list-disc list-inside text-gray-600 space-y-1">
+                            <li><span class="font-semibold">0-3 сек:</span> Хук с ценой "от X млн".</li>
+                            <li><span class="font-semibold">3-15 сек:</span> Панорама с балкона.</li>
+                            <li><span class="font-semibold">15-35 сек:</span> Quick tour по квартире.</li>
+                            <li><span class="font-semibold">35-50 сек:</span> Детали: кухня, спальня, санузел.</li>
+                            <li><span class="font-semibold">50-60 сек:</span> Финал с панорамой заката + CTA.</li>
+                        </ul>
+                    </div>
+                    <div id="reel-3" class="tab-content hidden">
+                        <h4 class="font-bold text-lg mb-2 text-center">"До моря 5 минут пешком"</h4>
+                        <ul class="list-disc list-inside text-gray-600 space-y-1">
+                            <li><span class="font-semibold">0-5 сек:</span> Стартуем от входа в ЖК с таймером.</li>
+                            <li><span class="font-semibold">5-45 сек:</span> Идем к морю в ускоренном формате (hyperlapse).</li>
+                            <li><span class="font-semibold">45-55 сек:</span> Приходим на пляж, кадры моря.</li>
+                            <li><span class="font-semibold">55-60 сек:</span> "Вот так просто" + CTA.</li>
+                        </ul>
                     </div>
                 </div>
 
@@ -222,6 +266,25 @@
                             <h4 class="font-semibold text-lg">Гарантия</h4>
                             <p class="text-gray-600">30 дней на исправление технических ошибок.</p>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="scroll-mt-20">
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg fade-in-up">
+                <h2 class="text-3xl font-bold text-center mb-6">Свяжитесь с нами</h2>
+                <div class="max-w-md mx-auto text-center">
+                    <img src="https://placehold.co/128x128/E0E7FF/3730A3?text=ДШ" alt="Фото координатора" class="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-white shadow-lg">
+                    <h3 class="text-2xl font-bold text-gray-800">Шишкина Дарина</h3>
+                    <p class="text-gray-500 mb-4">Координатор проекта</p>
+                    <div class="space-y-3">
+                        <a href="tel:+79319691125" class="inline-flex items-center justify-center w-full px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                           📞 +7 (931) 969-11-25
+                        </a>
+                        <a href="http://nexoproduction.ru/#gallery" target="_blank" class="inline-flex items-center justify-center w-full px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                           🌐 Посмотреть портфолио
+                        </a>
                     </div>
                 </div>
             </div>

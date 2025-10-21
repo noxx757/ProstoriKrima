@@ -6,17 +6,35 @@
     <title>Интерактивная смета: Видеопроект для ЖК "Просторы Крыма"</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Corporate Calm -->
     <!-- Application Structure Plan: A single-page dashboard with a sticky top navigation for easy access to key sections: interactive cost estimate, comparable creative scenarios, and terms. The core is an interactive cost breakdown with a donut chart for a quick visual summary and an accordion for detailed exploration. This structure organizes complex information intuitively, allowing the client to grasp the project's scope and creative direction without linear reading. -->
     <!-- Visualization & Content Choices: 1. Cost Data -> Goal: Inform/Organize -> Viz: Donut Chart + Accordion Table -> Interaction: Hover on chart, Click to expand table rows -> Justification: The chart gives a high-level budget overview, while the accordion provides details on demand, preventing information overload. -> Library: Chart.js for chart, Vanilla JS for accordion. 2. Scenarios -> Goal: Compare -> Viz: Card layout and simple blocks -> Interaction: None -> Justification: Simple, clear presentation for easy reading and comparison. -> Library: None. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #F8F9FA;
+            font-family: 'Manrope', sans-serif;
+            background-color: #000;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+        }
+        #webgl-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            width: 100%;
+            height: 100%;
+        }
+        .content-wrapper {
+            background-color: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .chart-container {
             position: relative;
@@ -35,12 +53,12 @@
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         }
         .accordion-content ul {
-            border-left: 2px solid #e5e7eb;
+            border-left: 2px solid #374151;
         }
         .tab-button.active {
             border-color: #3B82F6;
             color: #3B82F6;
-            background-color: #EFF6FF;
+            background-color: #1F2937;
         }
         @keyframes fadeInUp {
             from {
@@ -57,20 +75,22 @@
         }
     </style>
 </head>
-<body class="text-gray-800">
+<body class="text-gray-300">
 
-    <header class="bg-white shadow-md sticky top-0 z-50">
+    <canvas id="webgl-canvas"></canvas>
+
+    <header class="bg-gray-900/50 backdrop-filter backdrop-blur-lg shadow-md sticky top-0 z-50 border-b border-gray-700">
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center">
-                    <span class="font-bold text-xl text-gray-700">ЖК "Просторы Крыма"</span>
+                    <span class="font-bold text-xl text-white">ЖК "Просторы Крыма"</span>
                 </div>
                 <div class="hidden md:block">
                     <div class="ml-10 flex items-baseline space-x-4">
-                        <a href="#dashboard" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Смета</a>
-                        <a href="#scenarios" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Сценарии</a>
-                        <a href="#terms" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Условия</a>
-                        <a href="#contact" class="text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Контакты</a>
+                        <a href="#dashboard" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Смета</a>
+                        <a href="#scenarios" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Сценарии</a>
+                        <a href="#terms" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Условия</a>
+                        <a href="#contact" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Контакты</a>
                     </div>
                 </div>
             </div>
@@ -80,50 +100,50 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
 
         <section class="text-center mb-12">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 mb-2">Видеопроект для ЖК "Просторы Крыма"</h1>
-            <p class="text-lg text-gray-600">Интерактивная смета и креативные концепции для двух имиджевых роликов.</p>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-2 tracking-tighter">Видеопроект для ЖК "Просторы Крыма"</h1>
+            <p class="text-lg text-gray-400">Интерактивная смета и креативные концепции для двух имиджевых роликов.</p>
         </section>
 
         <section id="dashboard" class="mb-16 scroll-mt-20">
-            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
-                <h2 class="text-3xl font-bold text-center mb-2">Обзор проекта</h2>
-                 <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">Эта смета составлена под бюджет 276 100 руб. для создания двух имиджевых роликов длительностью до 1 минуты и до 40 минут.</p>
+            <div class="content-wrapper p-6 md:p-8 rounded-2xl shadow-lg">
+                <h2 class="text-3xl font-bold text-center mb-2 text-white">Обзор проекта</h2>
+                 <p class="text-center text-gray-400 max-w-3xl mx-auto mb-8">Эта смета составлена под бюджет 276 100 руб. для создания двух имиджевых роликов длительностью до 1 минуты и до 40 минут.</p>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-10">
-                    <div class="bg-blue-50 p-6 rounded-xl">
-                        <h3 class="text-lg font-semibold text-blue-800">Итого за проект</h3>
-                        <p class="text-4xl font-bold text-blue-600">276 100 руб.</p>
+                    <div class="bg-blue-900/50 p-6 rounded-xl border border-blue-700">
+                        <h3 class="text-lg font-semibold text-blue-300">Итого за проект</h3>
+                        <p class="text-4xl font-bold text-blue-400">276 100 руб.</p>
                     </div>
-                    <div class="bg-green-50 p-6 rounded-xl">
-                        <h3 class="text-lg font-semibold text-green-800">Общий срок</h3>
-                        <p class="text-4xl font-bold text-green-600">~14 дней</p>
+                    <div class="bg-green-900/50 p-6 rounded-xl border border-green-700">
+                        <h3 class="text-lg font-semibold text-green-300">Общий срок</h3>
+                        <p class="text-4xl font-bold text-green-400">~14 дней</p>
                     </div>
-                    <div class="bg-purple-50 p-6 rounded-xl">
-                        <h3 class="text-lg font-semibold text-purple-800">Результат</h3>
-                        <p class="text-2xl font-bold text-purple-600 leading-tight">1 ролик (до 40 мин)<br>1 ролик (до 1 мин)</p>
+                    <div class="bg-purple-900/50 p-6 rounded-xl border border-purple-700">
+                        <h3 class="text-lg font-semibold text-purple-300">Результат</h3>
+                        <p class="text-2xl font-bold text-purple-400 leading-tight">1 ролик (до 40 мин)<br>1 ролик (до 1 мин)</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
                     <div class="lg:col-span-2">
-                        <h3 class="text-2xl font-bold text-center mb-4">Распределение бюджета</h3>
+                        <h3 class="text-2xl font-bold text-center mb-4 text-white">Распределение бюджета</h3>
                         <div class="chart-container">
                             <canvas id="costDistributionChart"></canvas>
                         </div>
                     </div>
                     <div class="lg:col-span-3">
-                        <h3 class="text-2xl font-bold mb-4">Детальная смета</h3>
+                        <h3 class="text-2xl font-bold mb-4 text-white">Детальная смета</h3>
                         <div id="accordion-container" class="space-y-2"></div>
-                         <div class="mt-4 border-t-2 pt-4 space-y-2">
-                            <div class="flex justify-between items-center text-gray-700">
+                         <div class="mt-4 border-t-2 border-gray-700 pt-4 space-y-2">
+                            <div class="flex justify-between items-center text-gray-300">
                                 <span class="font-semibold">ОБЩАЯ СМЕТА</span>
                                 <span class="font-bold">251 000 руб.</span>
                             </div>
-                            <div class="flex justify-between items-center text-gray-700">
+                            <div class="flex justify-between items-center text-gray-300">
                                 <span class="font-semibold">Налоги, комиссия банка и бухгалтерия</span>
                                 <span class="font-bold">10%</span>
                             </div>
-                             <div class="flex justify-between items-center text-blue-700 text-xl">
+                             <div class="flex justify-between items-center text-blue-400 text-xl">
                                 <span class="font-extrabold">ИТОГО ЗА ПРОЕКТ</span>
                                 <span class="font-extrabold">276 100 руб.</span>
                             </div>
@@ -134,72 +154,72 @@
         </section>
 
         <section id="scenarios" class="mb-16 scroll-mt-20">
-             <h2 class="text-3xl font-bold text-center mb-2">Креативные сценарии</h2>
-             <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">Выберите идеальную концепцию для вашего видео. Мы подготовили три уникальных сценария для основного ролика и множество идей для короткого видео.</p>
+             <h2 class="text-3xl font-bold text-center mb-2 text-white">Креативные сценарии</h2>
+             <p class="text-center text-gray-400 max-w-3xl mx-auto mb-8">Выберите идеальную концепцию для вашего видео. Мы подготовили три уникальных сценария для основного ролика и множество идей для короткого видео.</p>
             
-            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
-                <h3 class="text-2xl font-bold mb-6 text-center">Варианты для большого ролика</h3>
+            <div class="content-wrapper p-6 md:p-8 rounded-2xl shadow-lg">
+                <h3 class="text-2xl font-bold mb-6 text-center text-white">Варианты для большого ролика</h3>
                 <div class="grid md:grid-cols-3 gap-8">
-                    <div class="scenario-card border border-gray-200 rounded-xl p-6 bg-gray-50">
-                        <h4 class="font-bold text-xl mb-3 text-blue-700">"Экскурсия с экспертом"</h4>
-                        <p class="text-sm text-gray-500 mb-2 font-medium">ПРЕМИУМ-ПОДХОД</p>
-                        <p class="text-gray-600 mb-4">Профессиональный риэлтор проводит детальную экскурсию по ЖК.</p>
-                        <strong class="text-gray-700">Стиль:</strong>
-                        <p class="text-gray-600 text-sm">Экспертный, но доступный для широкой аудитории.</p>
+                    <div class="scenario-card border border-gray-700 rounded-xl p-6 bg-gray-900/50">
+                        <h4 class="font-bold text-xl mb-3 text-blue-400">"Экскурсия с экспертом"</h4>
+                        <p class="text-sm text-gray-400 mb-2 font-medium">ПРЕМИУМ-ПОДХОД</p>
+                        <p class="text-gray-300 mb-4">Профессиональный риэлтор проводит детальную экскурсию по ЖК.</p>
+                        <strong class="text-gray-200">Стиль:</strong>
+                        <p class="text-gray-300 text-sm">Экспертный, но доступный для широкой аудитории.</p>
                     </div>
-                    <div class="scenario-card border border-gray-200 rounded-xl p-6 bg-gray-50">
-                        <h4 class="font-bold text-xl mb-3 text-green-700">"История семьи"</h4>
-                         <p class="text-sm text-gray-500 mb-2 font-medium">ЭМОЦИОНАЛЬНЫЙ ПОДХОД</p>
-                        <p class="text-gray-600 mb-4">Наблюдаем за реальной семьей, которая выбирает квартиру в ЖК.</p>
-                        <strong class="text-gray-700">Стиль:</strong>
-                        <p class="text-gray-600 text-sm">Документальный, искренний, с живыми эмоциями.</p>
+                    <div class="scenario-card border border-gray-700 rounded-xl p-6 bg-gray-900/50">
+                        <h4 class="font-bold text-xl mb-3 text-green-400">"История семьи"</h4>
+                         <p class="text-sm text-gray-400 mb-2 font-medium">ЭМОЦИОНАЛЬНЫЙ ПОДХОД</p>
+                        <p class="text-gray-300 mb-4">Наблюдаем за реальной семьей, которая выбирает квартиру в ЖК.</p>
+                        <strong class="text-gray-200">Стиль:</strong>
+                        <p class="text-gray-300 text-sm">Документальный, искренний, с живыми эмоциями.</p>
                     </div>
-                     <div class="scenario-card border border-gray-200 rounded-xl p-6 bg-gray-50">
-                        <h4 class="font-bold text-xl mb-3 text-purple-700">"Lifestyle & Инвестиции"</h4>
-                         <p class="text-sm text-gray-500 mb-2 font-medium">ПРЕМИУМ-LIFESTYLE</p>
-                        <p class="text-gray-600 mb-4">Показываем не просто недвижимость, а красивый образ жизни в Крыму.</p>
-                        <strong class="text-gray-700">Стиль:</strong>
-                        <p class="text-gray-600 text-sm">Кинематографичный, вдохновляющий.</p>
+                     <div class="scenario-card border border-gray-700 rounded-xl p-6 bg-gray-900/50">
+                        <h4 class="font-bold text-xl mb-3 text-purple-400">"Lifestyle & Инвестиции"</h4>
+                         <p class="text-sm text-gray-400 mb-2 font-medium">ПРЕМИУМ-LIFESTYLE</p>
+                        <p class="text-gray-300 mb-4">Показываем не просто недвижимость, а красивый образ жизни в Крыму.</p>
+                        <strong class="text-gray-200">Стиль:</strong>
+                        <p class="text-gray-300 text-sm">Кинематографичный, вдохновляющий.</p>
                     </div>
                 </div>
                 
-                <h3 class="text-2xl font-bold mt-12 mb-6 text-center">3 идеи для рилса (60 сек)</h3>
+                <h3 class="text-2xl font-bold mt-12 mb-6 text-center text-white">3 идеи для рилса (60 сек)</h3>
                  <div class="flex justify-center mb-6">
-                    <div id="reels-tabs" class="flex space-x-2 border border-gray-200 rounded-lg p-1 bg-gray-100">
-                        <button class="tab-button active px-4 py-2 text-sm font-medium rounded-md" data-tab="reel-1">Идея #1</button>
-                        <button class="tab-button px-4 py-2 text-sm font-medium rounded-md" data-tab="reel-2">Идея #2</button>
-                        <button class="tab-button px-4 py-2 text-sm font-medium rounded-md" data-tab="reel-3">Идея #3</button>
+                    <div id="reels-tabs" class="flex space-x-2 border border-gray-700 rounded-lg p-1 bg-gray-800">
+                        <button class="tab-button active px-4 py-2 text-sm font-medium rounded-md text-gray-300" data-tab="reel-1">Идея #1</button>
+                        <button class="tab-button px-4 py-2 text-sm font-medium rounded-md text-gray-300" data-tab="reel-2">Идея #2</button>
+                        <button class="tab-button px-4 py-2 text-sm font-medium rounded-md text-gray-300" data-tab="reel-3">Идея #3</button>
                     </div>
                 </div>
 
                 <div id="reels-content" class="max-w-2xl mx-auto">
                     <div id="reel-1" class="tab-content">
-                        <h4 class="font-bold text-lg mb-2 text-center">"3 причины выбрать эту новостройку в Крыму"</h4>
-                        <ul class="list-disc list-inside text-gray-600 space-y-1">
-                            <li><span class="font-semibold">0-3 сек:</span> Хук "Топ-3 причины купить здесь квартиру".</li>
-                            <li><span class="font-semibold">3-20 сек:</span> Причина 1 - Локация (море, горы, 5 мин до пляжа).</li>
-                            <li><span class="font-semibold">20-40 сек:</span> Причина 2 - Инфраструктура (все включено).</li>
-                            <li><span class="font-semibold">40-55 сек:</span> Причина 3 - Цена (выгодно сейчас).</li>
-                            <li><span class="font-semibold">55-60 сек:</span> CTA "Подробности в шапке профиля".</li>
+                        <h4 class="font-bold text-lg mb-2 text-center text-white">"3 причины выбрать эту новостройку в Крыму"</h4>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li><span class="font-semibold text-gray-100">0-3 сек:</span> Хук "Топ-3 причины купить здесь квартиру".</li>
+                            <li><span class="font-semibold text-gray-100">3-20 сек:</span> Причина 1 - Локация (море, горы, 5 мин до пляжа).</li>
+                            <li><span class="font-semibold text-gray-100">20-40 сек:</span> Причина 2 - Инфраструктура (все включено).</li>
+                            <li><span class="font-semibold text-gray-100">40-55 сек:</span> Причина 3 - Цена (выгодно сейчас).</li>
+                            <li><span class="font-semibold text-gray-100">55-60 сек:</span> CTA "Подробности в шапке профиля".</li>
                         </ul>
                     </div>
                     <div id="reel-2" class="tab-content hidden">
-                        <h4 class="font-bold text-lg mb-2 text-center">"Квартира с видом на море ЗА..."</h4>
-                        <ul class="list-disc list-inside text-gray-600 space-y-1">
-                            <li><span class="font-semibold">0-3 сек:</span> Хук с ценой "от X млн".</li>
-                            <li><span class="font-semibold">3-15 сек:</span> Панорама с балкона.</li>
-                            <li><span class="font-semibold">15-35 сек:</span> Quick tour по квартире.</li>
-                            <li><span class="font-semibold">35-50 сек:</span> Детали: кухня, спальня, санузел.</li>
-                            <li><span class="font-semibold">50-60 сек:</span> Финал с панорамой заката + CTA.</li>
+                        <h4 class="font-bold text-lg mb-2 text-center text-white">"Квартира с видом на море ЗА..."</h4>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li><span class="font-semibold text-gray-100">0-3 сек:</span> Хук с ценой "от X млн".</li>
+                            <li><span class="font-semibold text-gray-100">3-15 сек:</span> Панорама с балкона.</li>
+                            <li><span class="font-semibold text-gray-100">15-35 сек:</span> Quick tour по квартире.</li>
+                            <li><span class="font-semibold text-gray-100">35-50 сек:</span> Детали: кухня, спальня, санузел.</li>
+                            <li><span class="font-semibold text-gray-100">50-60 сек:</span> Финал с панорамой заката + CTA.</li>
                         </ul>
                     </div>
                     <div id="reel-3" class="tab-content hidden">
-                        <h4 class="font-bold text-lg mb-2 text-center">"До моря 5 минут пешком"</h4>
-                        <ul class="list-disc list-inside text-gray-600 space-y-1">
-                            <li><span class="font-semibold">0-5 сек:</span> Стартуем от входа в ЖК с таймером.</li>
-                            <li><span class="font-semibold">5-45 сек:</span> Идем к морю в ускоренном формате (hyperlapse).</li>
-                            <li><span class="font-semibold">45-55 сек:</span> Приходим на пляж, кадры моря.</li>
-                            <li><span class="font-semibold">55-60 сек:</span> "Вот так просто" + CTA.</li>
+                        <h4 class="font-bold text-lg mb-2 text-center text-white">"До моря 5 минут пешком"</h4>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li><span class="font-semibold text-gray-100">0-5 сек:</span> Стартуем от входа в ЖК с таймером.</li>
+                            <li><span class="font-semibold text-gray-100">5-45 сек:</span> Идем к морю в ускоренном формате (hyperlapse).</li>
+                            <li><span class="font-semibold text-gray-100">45-55 сек:</span> Приходим на пляж, кадры моря.</li>
+                            <li><span class="font-semibold text-gray-100">55-60 сек:</span> "Вот так просто" + CTA.</li>
                         </ul>
                     </div>
                 </div>
@@ -208,63 +228,63 @@
         </section>
 
         <section id="terms" class="scroll-mt-20">
-             <h2 class="text-3xl font-bold text-center mb-2">Условия и Гарантии</h2>
-             <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">Ключевые условия нашего сотрудничества, обеспечивающие прозрачность и высокое качество финального продукта.</p>
+             <h2 class="text-3xl font-bold text-center mb-2 text-white">Условия и Гарантии</h2>
+             <p class="text-center text-gray-400 max-w-3xl mx-auto mb-8">Ключевые условия нашего сотрудничества, обеспечивающие прозрачность и высокое качество финального продукта.</p>
 
-            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+            <div class="content-wrapper p-6 md:p-8 rounded-2xl shadow-lg">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="flex items-start space-x-4">
-                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-900/50 text-blue-400 flex items-center justify-center">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         </div>
                         <div>
-                            <h4 class="font-semibold text-lg">Сроки</h4>
-                            <p class="text-gray-600">12 рабочих дней от момента проведения съёмки.</p>
+                            <h4 class="font-semibold text-lg text-white">Сроки</h4>
+                            <p class="text-gray-400">12 рабочих дней от момента проведения съёмки.</p>
                         </div>
                     </div>
                     <div class="flex items-start space-x-4">
-                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-900/50 text-green-400 flex items-center justify-center">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                         </div>
                         <div>
-                            <h4 class="font-semibold text-lg">Правки</h4>
-                            <p class="text-gray-600">3 раунда правок включены в стоимость.</p>
+                            <h4 class="font-semibold text-lg text-white">Правки</h4>
+                            <p class="text-gray-400">3 раунда правок включены в стоимость.</p>
                         </div>
                     </div>
                     <div class="flex items-start space-x-4">
-                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-purple-900/50 text-purple-400 flex items-center justify-center">
                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                         </div>
                         <div>
-                            <h4 class="font-semibold text-lg">Форматы</h4>
-                            <p class="text-gray-600">MP4 (H.264), 4K и Full HD версии.</p>
+                            <h4 class="font-semibold text-lg text-white">Форматы</h4>
+                            <p class="text-gray-400">MP4 (H.264), 4K и Full HD версии.</p>
                         </div>
                     </div>
                     <div class="flex items-start space-x-4">
-                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-900/50 text-yellow-400 flex items-center justify-center">
                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
                         </div>
                         <div>
-                            <h4 class="font-semibold text-lg">Передача материалов</h4>
-                            <p class="text-gray-600">Облачное хранилище.</p>
+                            <h4 class="font-semibold text-lg text-white">Передача материалов</h4>
+                            <p class="text-gray-400">Облачное хранилище.</p>
                         </div>
                     </div>
                     <div class="flex items-start space-x-4">
-                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-red-900/50 text-red-400 flex items-center justify-center">
                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                         </div>
                         <div>
-                            <h4 class="font-semibold text-lg">Авторские права</h4>
-                            <p class="text-gray-600">Полная передача заказчику.</p>
+                            <h4 class="font-semibold text-lg text-white">Авторские права</h4>
+                            <p class="text-gray-400">Полная передача заказчику.</p>
                         </div>
                     </div>
                     <div class="flex items-start space-x-4">
-                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-900/50 text-indigo-400 flex items-center justify-center">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
                         <div>
-                            <h4 class="font-semibold text-lg">Гарантия</h4>
-                            <p class="text-gray-600">30 дней на исправление технических ошибок.</p>
+                            <h4 class="font-semibold text-lg text-white">Гарантия</h4>
+                            <p class="text-gray-400">30 дней на исправление технических ошибок.</p>
                         </div>
                     </div>
                 </div>
@@ -272,17 +292,17 @@
         </section>
 
         <section id="contact" class="scroll-mt-20">
-            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg fade-in-up">
-                <h2 class="text-3xl font-bold text-center mb-6">Свяжитесь с нами</h2>
+            <div class="content-wrapper p-6 md:p-8 rounded-2xl shadow-lg fade-in-up">
+                <h2 class="text-3xl font-bold text-center mb-6 text-white">Свяжитесь с нами</h2>
                 <div class="max-w-md mx-auto text-center">
-                    <img src="https://placehold.co/128x128/E0E7FF/3730A3?text=ДШ" alt="Фото координатора" class="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-white shadow-lg">
-                    <h3 class="text-2xl font-bold text-gray-800">Шишкина Дарина</h3>
-                    <p class="text-gray-500 mb-4">Координатор проекта</p>
+                    <img src="https://placehold.co/128x128/312E81/EDE9FE?text=ДШ" alt="Фото координатора" class="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-gray-700 shadow-lg">
+                    <h3 class="text-2xl font-bold text-white">Шишкина Дарина</h3>
+                    <p class="text-gray-400 mb-4">Координатор проекта</p>
                     <div class="space-y-3">
-                        <a href="tel:+79319691125" class="inline-flex items-center justify-center w-full px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                        <a href="tel:+79319691125" class="inline-flex items-center justify-center w-full px-6 py-3 border border-transparent text-base font-medium rounded-full text-white bg-blue-600 hover:bg-blue-700 transition-transform transform hover:scale-105">
                            📞 +7 (931) 969-11-25
                         </a>
-                        <a href="http://nexoproduction.ru/#gallery" target="_blank" class="inline-flex items-center justify-center w-full px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <a href="http://nexoproduction.ru/#gallery" target="_blank" class="inline-flex items-center justify-center w-full px-6 py-3 border border-gray-600 text-base font-medium rounded-full text-gray-200 bg-gray-800 hover:bg-gray-700 transition-transform transform hover:scale-105">
                            🌐 Посмотреть портфолио
                         </a>
                     </div>
@@ -292,7 +312,7 @@
 
     </main>
 
-    <footer class="bg-white mt-12">
+    <footer class="bg-gray-900/50 mt-12 border-t border-gray-700">
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
             <p>&copy; 2025 | Интерактивное предложение для ЖК "Просторы Крыма"</p>
         </div>
@@ -300,6 +320,107 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            
+            const initShader = () => {
+                const canvas = document.getElementById('webgl-canvas');
+                if (!canvas) return;
+
+                let scene, camera, renderer, mesh, uniforms, animationId;
+
+                const vertexShader = `
+                  attribute vec3 position;
+                  void main() {
+                    gl_Position = vec4(position, 1.0);
+                  }
+                `;
+
+                const fragmentShader = `
+                  precision highp float;
+                  uniform vec2 resolution;
+                  uniform float time;
+                  uniform float xScale;
+                  uniform float yScale;
+                  uniform float distortion;
+
+                  void main() {
+                    vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);
+                    
+                    float d = length(p) * distortion;
+                    
+                    float rx = p.x * (1.0 + d);
+                    float gx = p.x;
+                    float bx = p.x * (1.0 - d);
+
+                    float r = 0.05 / abs(p.y + sin((rx + time) * xScale) * yScale);
+                    float g = 0.05 / abs(p.y + sin((gx + time) * xScale) * yScale);
+                    float b = 0.05 / abs(p.y + sin((bx + time) * xScale) * yScale);
+                    
+                    gl_FragColor = vec4(r, g, b, 1.0);
+                  }
+                `;
+
+                const initScene = () => {
+                    scene = new THREE.Scene();
+                    renderer = new THREE.WebGLRenderer({ canvas });
+                    renderer.setPixelRatio(window.devicePixelRatio);
+                    renderer.setClearColor(new THREE.Color(0x000000));
+
+                    camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, -1);
+
+                    uniforms = {
+                        resolution: { value: [window.innerWidth, window.innerHeight] },
+                        time: { value: 0.0 },
+                        xScale: { value: 1.0 },
+                        yScale: { value: 0.5 },
+                        distortion: { value: 0.05 },
+                    };
+
+                    const position = [
+                        -1.0, -1.0, 0.0, 1.0, -1.0, 0.0, -1.0, 1.0, 0.0,
+                         1.0, -1.0, 0.0, -1.0, 1.0, 0.0,  1.0, 1.0, 0.0,
+                    ];
+
+                    const positions = new THREE.BufferAttribute(new Float32Array(position), 3);
+                    const geometry = new THREE.BufferGeometry();
+                    geometry.setAttribute("position", positions);
+
+                    const material = new THREE.RawShaderMaterial({
+                        vertexShader,
+                        fragmentShader,
+                        uniforms,
+                        side: THREE.DoubleSide,
+                    });
+
+                    mesh = new THREE.Mesh(geometry, material);
+                    scene.add(mesh);
+
+                    handleResize();
+                };
+
+                const animate = () => {
+                    if (uniforms) uniforms.time.value += 0.01;
+                    if (renderer && scene && camera) {
+                        renderer.render(scene, camera);
+                    }
+                    animationId = requestAnimationFrame(animate);
+                };
+
+                const handleResize = () => {
+                    if (!renderer || !uniforms) return;
+                    const width = window.innerWidth;
+                    const height = window.innerHeight;
+                    renderer.setSize(width, height, false);
+                    uniforms.resolution.value = [width, height];
+                };
+
+                initScene();
+                animate();
+                window.addEventListener("resize", handleResize);
+            };
+
+            initShader();
+
+
             const budgetData = {
                 labels: ['Препродакшн', 'Продакшн', 'Постпродакшн', 'Орг. расходы'],
                 costs: [24000, 120000, 95000, 12000],
@@ -314,7 +435,7 @@
                     datasets: [{
                         data: budgetData.costs,
                         backgroundColor: budgetData.colors,
-                        borderColor: '#F8F9FA',
+                        borderColor: '#111827',
                         borderWidth: 4,
                         hoverOffset: 10
                     }]
@@ -328,9 +449,10 @@
                             position: 'bottom',
                             labels: {
                                 padding: 20,
+                                color: '#D1D5DB',
                                 font: {
                                     size: 14,
-                                    family: 'Inter, sans-serif'
+                                    family: 'Manrope, sans-serif'
                                 }
                             }
                         },
@@ -400,26 +522,26 @@
             const accordionContainer = document.getElementById('accordion-container');
             accordionData.forEach((section, index) => {
                 const sectionEl = document.createElement('div');
-                sectionEl.className = 'border border-gray-200 rounded-lg overflow-hidden';
+                sectionEl.className = 'border border-gray-700 rounded-lg overflow-hidden';
                 sectionEl.innerHTML = `
-                    <button class="accordion-header w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 focus:outline-none">
-                        <span class="font-semibold text-lg text-left">${section.title}</span>
+                    <button class="accordion-header w-full flex justify-between items-center p-4 bg-gray-800/50 hover:bg-gray-700/50 focus:outline-none">
+                        <span class="font-semibold text-lg text-left text-white">${section.title}</span>
                         <div class="flex items-center space-x-4">
-                            <span class="text-sm font-medium text-gray-500">${section.duration}</span>
-                            <span class="font-bold text-gray-700">${section.total}</span>
-                            <svg class="w-5 h-5 transition-transform transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            <span class="text-sm font-medium text-gray-400">${section.duration}</span>
+                            <span class="font-bold text-gray-200">${section.total}</span>
+                            <svg class="w-5 h-5 transition-transform transform text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </div>
                     </button>
-                    <div class="accordion-content hidden p-4 bg-white">
+                    <div class="accordion-content hidden p-4 bg-gray-900/50">
                         <ul class="space-y-2">
                             ${section.items.map(item => `
-                                <li class="py-2 border-b border-gray-100 last:border-b-0">
-                                    <div class="flex justify-between items-center text-gray-700">
+                                <li class="py-2 border-b border-gray-700 last:border-b-0">
+                                    <div class="flex justify-between items-center text-gray-300">
                                         <span>${item.name}</span>
-                                        <span class="font-medium text-gray-900">${typeof item.cost === 'string' && isNaN(item.cost) ? item.cost : new Intl.NumberFormat('ru-RU').format(item.cost) + ' руб.'}</span>
+                                        <span class="font-medium text-gray-100">${typeof item.cost === 'string' && isNaN(item.cost) ? item.cost : new Intl.NumberFormat('ru-RU').format(item.cost) + ' руб.'}</span>
                                     </div>
                                     ${item.details ? `
-                                        <ul class="list-disc list-inside text-sm text-gray-500 mt-2 ml-4 pl-4 space-y-1">
+                                        <ul class="list-disc list-inside text-sm text-gray-400 mt-2 ml-4 pl-4 space-y-1">
                                             ${item.details.map(detail => `<li>${detail}</li>`).join('')}
                                         </ul>
                                     ` : ''}
